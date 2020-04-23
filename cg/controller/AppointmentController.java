@@ -21,18 +21,8 @@ public class AppointmentController {
 	@Autowired
 	AppointmentService appointmentservice;
 	
-//	public int makeAppointment()
-//	{
-//		return 1;
-//	}
-	
-//	public List viewAppointmentDetails()
-//	{
-//		return null;
-//		
-//	}
-	
-	@PostMapping(value="HealthCareSystem/users/make-appointment/{userId}/{centerName}/{testName}/{dateTimeStr}", consumes = {"application/json"})
+
+	@PostMapping(value="HealthCareSystem/users/make-appointment/{userId}/{centerName}/{testName}/{dateTimeStr}")
 	public int makeAppointment(@PathVariable int userId,@PathVariable String centerName ,@PathVariable String testName,@PathVariable String dateTimeStr)
 	{
 		User user =appointmentservice.findByUserId(userId);
@@ -46,4 +36,4 @@ public class AppointmentController {
 		appointmentservice.makeAppointment(user, diagnosticCenter, test, dateTime);
 		return 1;
 	} 
-}
+
