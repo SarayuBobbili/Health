@@ -1,16 +1,12 @@
 package com.cg.dao;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.cg.entity.Appointment;
@@ -25,48 +21,54 @@ public class AppointmentDao implements AppointmentDaoI{
 	@PersistenceContext
 	EntityManager entityManager;
 	
-	@Autowired
-	Appointment appointment;
+	@Override
+	public String addCenter(DiagnosticCenter diagnosticCenter)
+	{
+		List<Test> tests = new ArrayList<Test>();
+		tests.add(new Test("blood group"));
+		tests.add(new Test("blood sugar"));
+		tests.add(new Test("blood pressure"));
+        diagnosticCenter.setListOfTests(tests);	
+		entityManager.persist(diagnosticCenter);
+		return "Center added successfully";
+	}
+
+	@Override
+	public List<DiagnosticCenter> listOfDiagnosticCenters()
+	{
+		String queryStr = "select diagnosticCenter from DiagnosticCenter diagnosticCenter";
+		TypedQuery<DiagnosticCenter> query = entityManager.createQuery(queryStr,DiagnosticCenter.class);
+		return query.getResultList();
+	}
 	
 	@Override
-	public int  makeAppointment(User user, DiagnosticCenter center, Test test, LocalDateTime datetime) 
+	public String createUser(User user)
 	{
-		
-		appointment.setUser(user);
-		appointment.setCenter(center);
-		appointment.setTest(test);;
-		appointment.setDatetime(datetime);
-		entityManager.persist(appointment);
-		center.getAppointmentList().add(appointment);
-		return appointment.getAppointmentId(); 
+		entityManager.persist(user);
+		return "User created";
 	}
 
 	@Override
-	public List viewAppointmentDetails() {
-		Query q=entityManager.createQuery("from Appointment a");
-		return q.getResultList();
-	}
-
-	@Override
-	public Test findByTestName(DiagnosticCenter diagnosticCenter, String testName) 
-	{
-		
-		Test test = diagnosticCenter.getListOfTests().stream().filter(t->testName.equals(t.getTestName())).findFirst().get();
-		return test;
-	}
-	public DiagnosticCenter findByCenterName(String centerName)
-	{
-		String queryStr = "select center from DiagnosticCenter center where center.centerName=:centerName";
-		TypedQuery<DiagnosticCenter> query = entityManager.createQuery(queryStr,DiagnosticCenter.class);
-		DiagnosticCenter diagnosticCenter = query.setParameter("centerName", centerName).getSingleResult();
-		return diagnosticCenter;
-	}
-	public User findByUserId(int userId)
-	{
-		String queryStr = "select users from User users where users.userId=:userId";
+	public User findByUserId(int userId) {
+		String queryStr = "select user from User user where user.userId=:userId";
 		TypedQuery<User> query = entityManager.createQuery(queryStr,User.class);
 		User user = query.setParameter("userId", userId).getSingleResult();
 		return user;
 	}
 
+	@Override
+	public String makeAppointment(Appointment appointment)
+	{
+		entityManager.persist(appointment);
+		return "Appointment added successfully";
+	}
+	
+	@Override
+	public Appointment findByAppointmentId(int appointmentId) 
+	{
+		String queryStr = "select appointment from Appointment appointment where appointment.appointmentId=:appointmentId";
+		TypedQuery<Appointment> query = entityManager.createQuery(queryStr,Appointment.class);
+		Appointment appointment = query.setParameter("appointmentId", appointmentId).getSingleResult();
+		return appointment;
+	}
 }
